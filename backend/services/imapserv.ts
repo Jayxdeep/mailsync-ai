@@ -1,6 +1,7 @@
 //conection and fetching of emails from acctns 
-import Imap, { errorMonitor } from 'node-imap';
-import {simpleParser} from 'mailparser';
+import Imap from 'node-imap';
+// import {Readable} from 'stream';
+import {simpleParser,ParsedMail} from 'mailparser';
 export interface ImapConfig extends Imap.Config{
     id:number; //acctn number 
 }
@@ -55,19 +56,34 @@ export class ImapServ{
     }
     private fetchAndProcessEmails(uids: number|number[]){
         //fetching of mails
-        const fet=this.imap.fetch(uids,{bodies: ''});//will take the uids of imap function
-        fet.on('message',(msg,seqno)=>{
+        const fet:Imap.ImapFetch=this.imap.fetch(uids,{bodies: ''});//will take the uids of imap function
+        fet.on('message',(msg:Imap.ImapMessage,seqno:number)=>{
             console.log(`[Imap acctn ${this.config.id}]Process message #${seqno}`);
-            msg.on('body',(stream,info)=>{
-                simpleParser(stream,async(errorMonitor,parsed)=>{
+            msg.on('body',(stream:ReadableStream,_info:Imap.ImapMessageBodyInfo)=>{ //readable object fix 
+                simpleParser(stream,(err:Error,parsed:ParsedMail)=>{
                     if(err){
                         console.log(`[Imap acctn ${this.config.id}]Error in email:`,err);
                         return;
                     }
+                    const subject=parsed.subject || 'No subject';
+                    const from=parsed.from?.text || 'No sender';
+                    console.log(`[Imap acctn ${this.config.id}]-Subject:${subject}`);
+                    console.log(`[Imap acctn ${this.config.id}]-From:${from}`);
                 })
             })
         })
+        fet.once('error',(err)=>{
+            console.log(`[Imap acctn ${this.config.id}]fetch error:`,err);
+        })
+        fet.once('end',()=>{
+            console.log(`[Imap acctn ${this.config.id}]finished fetching`);
+            if(Array.isArray(uids)){
+                this.IdleMode();
+            }
+        });
     }
     private IdleMode(){ //idle mode for later 
+        console.log(`[Imap acctn ${this.config.id}]Initial sync done`);
+        // this.imap.idle();
     }
 }

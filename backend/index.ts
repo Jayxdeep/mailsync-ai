@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { ImapServ,ImapConfig } from './services/imapserv.js';
-dotenv.config();
+dotenv.config();//
 
 function getImapConfigs(): ImapConfig[] {
   const configs: ImapConfig[] = [];
