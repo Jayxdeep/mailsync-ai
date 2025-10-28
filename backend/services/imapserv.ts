@@ -54,8 +54,8 @@ export class ImapServ{
         });
     }
     private fetchAndProcessEmails(res: number[]){
-        
+        //fetching of mails
     }
-    private IdleMode(){
+    private IdleMode(){ //idle mode for later 
     }
 }
