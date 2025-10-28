@@ -1,5 +1,5 @@
 //conection and fetching of emails from acctns 
-import Imap from 'node-imap';
+import Imap, { errorMonitor } from 'node-imap';
 import {simpleParser} from 'mailparser';
 export interface ImapConfig extends Imap.Config{
     id:number; //acctn number 
@@ -53,8 +53,20 @@ export class ImapServ{
              this.fetchAndProcessEmails(res);
         });
     }
-    private fetchAndProcessEmails(res: number[]){
+    private fetchAndProcessEmails(uids: number|number[]){
         //fetching of mails
+        const fet=this.imap.fetch(uids,{bodies: ''});//will take the uids of imap function
+        fet.on('message',(msg,seqno)=>{
+            console.log(`[Imap acctn ${this.config.id}]Process message #${seqno}`);
+            msg.on('body',(stream,info)=>{
+                simpleParser(stream,async(errorMonitor,parsed)=>{
+                    if(err){
+                        console.log(`[Imap acctn ${this.config.id}]Error in email:`,err);
+                        return;
+                    }
+                })
+            })
+        })
     }
     private IdleMode(){ //idle mode for later 
     }

@@ -1,5 +1,3 @@
-// index.ts
-
 import dotenv from 'dotenv';
 import { ImapServ,ImapConfig } from './services/imapserv.js';
 dotenv.config();
@@ -7,8 +5,6 @@ dotenv.config();
 function getImapConfigs(): ImapConfig[] {
   const configs: ImapConfig[] = [];
   let i = 1;
-
-  // Loop through environment variables to find all account configurations
   while (process.env[`IMAP_USER_${i}`]) {
     const user = process.env[`IMAP_USER_${i}`];
     const password = process.env[`IMAP_PASS_${i}`];
@@ -32,13 +28,11 @@ function getImapConfigs(): ImapConfig[] {
 function main() {
   const imapConfigs = getImapConfigs();
   if (imapConfigs.length === 0) {
-    console.error("No IMAP configurations found in .env file. Please check your configuration.");
+    console.error("No IMAP configurations found.");
     return;
   }
 
-  console.log(`Found ${imapConfigs.length} IMAP account(s) to sync.`);
-
-  // Create and start an ImapService for each configuration
+  console.log(`Found ${imapConfigs.length} IMAP account to sync.`);
   for (const config of imapConfigs) {
     const imapserv=new ImapServ(config);
     imapserv.connect();
