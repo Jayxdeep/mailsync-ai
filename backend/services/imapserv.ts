@@ -1,6 +1,7 @@
 //conection and fetching of emails from acctns 
 import Imap from 'node-imap';
-import { Readable } from 'node:stream';
+// import { Readable } from 'node:stream';
+import {Readable} from 'stream';
 import { simpleParser, ParsedMail } from 'mailparser';
 
 export interface ImapConfig extends Imap.Config {
@@ -62,11 +63,11 @@ export class ImapServ {
   private fetchAndProcessEmails(uids: number | number[]) {
     //fetching of mails
     const fet: Imap.ImapFetch = this.imap.fetch(uids, { bodies: '' });
-    fet.on('message', (msg: Imap.ImapMessage, seqno: number) => {
+    fet.on('message', (msg: any, seqno: number) => {
       console.log(`[Imap acctn ${this.config.id}]Process message ${seqno}`);
-      msg.on('body', (stream, _info) => { 
-        const nodeStream = Readable.fromWeb(stream as any);
-        simpleParser(nodeStream, (err: Error, parsed: ParsedMail) => {
+      msg.on('body', (stream:Readable, _info: any) => { 
+        // const nodeStream = Readable.fromWeb(stream as any);
+        simpleParser(stream, (err: Error, parsed: ParsedMail) => {
           if (err) {
             console.log(`[Imap acctn ${this.config.id}]Error in email:`, err);
             return;
