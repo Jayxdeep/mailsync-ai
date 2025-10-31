@@ -28,13 +28,9 @@ export class ImapServ {
   }
   private onReady() {
     console.log(`[IMAP accn ${this.config.id}]Connection successful`)
-    
-    // BUG FIX 1: Must be 'INBOX' (all caps)
     this.imap.openBox('INBOX', false, (err, box) => {
       if (err) throw err;
       console.log(`[Imap acctn ${this.config.id}]Inboxed opened`);
-      
-      // BUG FIX 2: Must be 'mail' (all lowercase)
       this.imap.on('mail', (numMsgs: number) => {
         console.log(`[Imap acctn ${this.config.id}]new email! you have ${numMsgs} new msgs`);
         this.fetchAndProcessEmails(box.messages.total);//get the latest msgs
